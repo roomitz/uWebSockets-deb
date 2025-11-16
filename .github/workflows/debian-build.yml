@@ -21,8 +21,7 @@ jobs:
       
       - name: Download and install latest libusockets-dev
         run: |
-          # Скачиваем latest релиз
-          wget https://github.com/roomitz/uSockets-deb/releases/latest/download/libusockets-dev_0.8.8-test9_amd64.deb
+          wget https://github.com/roomitz/uSockets-deb/releases/latest/download/libusockets-dev_0.8.8-1_amd64.deb
           sudo apt-get update
           sudo apt-get install -y ./libusockets-dev_*.deb
       
