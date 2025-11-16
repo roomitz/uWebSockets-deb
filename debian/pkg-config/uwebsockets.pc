@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: uWebSockets
+Description: Lightweight WebSocket library
+Version: 20.0.0
+Requires: libusockets >= 0.8.8
+Cflags: -I${includedir}
+Libs: -luSockets -luv -lssl -lcrypto -lz

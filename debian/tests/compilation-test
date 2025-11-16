@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+echo "Testing uWebSockets compilation..."
+
+cat > test_compile.cpp << 'EOF'
+#include "App.h"
+#include <iostream>
+
+int main() {
+    std::cout << "uWebSockets compilation test" << std::endl;
+    
+    uWS::App app;
+    
+    std::cout << "✓ uWebSockets headers work correctly" << std::endl;
+    return 0;
+}
+EOF
+
+echo "Compiling test program..."
+g++ -std=c++17 test_compile.cpp -o test_compile -luSockets -luv -lssl -lcrypto -lz
+
+if [ -f test_compile ]; then
+    echo "✓ Compilation successful"
+    ./test_compile
+    rm test_compile test_compile.cpp
+    echo "✓ Test passed"
+else
+    echo "✗ Compilation failed"
+    exit 1
+fi
+

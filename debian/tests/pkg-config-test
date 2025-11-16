@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+echo "Testing uWebSockets with pkg-config dependencies..."
+
+cat > test_pkgconfig.cpp << 'EOF'
+#include "App.h"
+
+int main() {
+    uWS::App().get("/*", [](auto *res, auto *req) {
+        res->end("Hello");
+    });
+    return 0;
+}
+EOF
+
+echo "Getting flags from pkg-config for dependencies..."
+CFLAGS=$(pkg-config --cflags libusockets || echo "")
+LIBS=$(pkg-config --libs libusockets || echo "-luSockets")
+
+echo "Compiling with flags: $CFLAGS $LIBS"
+g++ -std=c++17 $CFLAGS test_pkgconfig.cpp -o test_pkgconfig $LIBS -luv -lssl -lcrypto -lz
+
+if [ -f test_pkgconfig ]; then
+    echo "✓ Compilation with pkg-config successful"
+    rm test_pkgconfig test_pkgconfig.cpp
+    echo "✓ Test passed"
+else
+    echo "✗ pkg-config test failed"
+    exit 1
+fi

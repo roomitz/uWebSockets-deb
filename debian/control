@@ -1,7 +1,7 @@
 Source: uwebsockets
 Section: libdevel
 Priority: optional
-Maintainer: Timur Dautov <roomityt@yandex.ru>
+Maintainer: Ruslan Dautov <r.dautoff2016@yandex.ru>
 Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.2
 Homepage: https://github.com/uNetworking/uWebSockets
@@ -11,6 +11,7 @@ Package: uwebsockets-dev
 Architecture: all
 Multi-Arch: foreign
 Depends: libusockets-dev (>= 0.8.8),
+         libuv1-dev,
          ${misc:Depends}
 Description: Lightweight C++ WebSocket library
  uWebSockets is a simple to use, yet thoroughly optimized implementation

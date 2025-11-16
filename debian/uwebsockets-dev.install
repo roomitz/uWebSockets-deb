@@ -1,1 +1,2 @@
-src/*.h usr/include/uWebSockets/
+src/*.h usr/include/
+debian/pkg-config/uwebsockets.pc usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/

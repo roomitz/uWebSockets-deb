@@ -1,0 +1,42 @@
+# Debian package build artifacts
+*.deb
+*.dsc
+*.changes
+*.buildinfo
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.upload
+
+# Debian build temporary files
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.substvars
+debian/*.log
+debian/tmp/
+debian/*-stamp
+
+# Debian package staging directories
+debian/uwebsockets-dev/
+
+# Build artifacts in parent directory (created by dpkg-buildpackage)
+../*.deb
+../*.dsc
+../*.changes
+../*.buildinfo
+../*.tar.*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled test files
+debian/tests/test_compile
+debian/tests/test_compile.cpp
+debian/tests/test_pkgconfig
+debian/tests/test_pkgconfig.cpp

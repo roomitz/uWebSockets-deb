@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+echo "Testing uWebSockets installation..."
+
+headers=(
+    "/usr/include/App.h"
+    "/usr/include/WebSocket.h"
+    "/usr/include/WebSocketProtocol.h"
+)
+
+failed=0
+
+for header in "${headers[@]}"; do
+    if [ -f "$header" ]; then
+        echo "✓ Found: $header"
+    else
+        echo "✗ Missing: $header"
+        failed=1
+    fi
+done
+
+if [ $failed -eq 0 ]; then
+    echo "✓ All required files installed"
+    exit 0
+else
+    echo "✗ Installation test failed"
+    exit 1
+fi
