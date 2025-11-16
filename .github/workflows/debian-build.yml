@@ -19,11 +19,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Download and install libusockets-dev
+      - name: Download and install latest libusockets-dev
         run: |
-          wget https://github.com/roomitz/uSockets-deb/releases/download/v0.8.8-1/libusockets-dev_0.8.8-1_amd64.deb
+          # Скачиваем latest релиз
+          wget https://github.com/roomitz/uSockets-deb/releases/latest/download/libusockets-dev_0.8.8-test9_amd64.deb
           sudo apt-get update
-          sudo apt-get install -y ./libusockets-dev_0.8.8-1_amd64.deb
+          sudo apt-get install -y ./libusockets-dev_*.deb
       
       - name: Install build dependencies
         run: |
