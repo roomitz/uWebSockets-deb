@@ -1,0 +1,131 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            debhelper-compat \
+            g++ \
+            libuv1-dev \
+            libssl-dev \
+            lintian \
+            autopkgtest \
+            autodep8 \
+            dpkg-dev
+      
+      - name: Download and install latest libusockets-dev
+        run: |
+          cd /tmp
+          wget https://github.com/roomitz/uSockets-deb/releases/latest/download/libusockets-dev_0.8.8-1_amd64.deb
+          sudo apt-get install -y /tmp/libusockets-dev_*.deb
+      
+      - name: Create upstream tarball
+        run: |
+          VERSION=$(head -1 debian/changelog | sed 's/.*(\([^)]*\)).*/\1/' | cut -d- -f1)
+          git archive --format=tar --prefix=uwebsockets-${VERSION}/ HEAD | gzip > ../uwebsockets_${VERSION}.orig.tar.gz
+          echo "Created tarball: ../uwebsockets_${VERSION}.orig.tar.gz"
+      
+      - name: Build packages
+        run: |
+          rm -rf .github
+          dpkg-buildpackage -us -uc
+      
+      - name: List built packages
+        run: |
+          echo "Built packages:"
+          ls -lh ../*.deb ../*.dsc ../*.tar.* ../*.changes ../*.buildinfo 2>/dev/null || echo "No packages found"
+      
+      - name: Collect artifacts
+        run: |
+          mkdir -p artifacts
+          cp ../*.deb ../*.dsc ../*.tar.* ../*.changes ../*.buildinfo artifacts/ 2>/dev/null || true
+          echo "Artifacts:"
+          ls -lh artifacts/
+      
+      - name: Verify package
+        run: |
+          for deb in artifacts/*.deb; do
+            if [ -f "$deb" ]; then
+              echo "Package: $deb"
+              dpkg-deb --info "$deb" | grep Architecture || true
+            fi
+          done
+      
+      - name: Run lintian
+        run: |
+          if ls artifacts/*.changes 1> /dev/null 2>&1; then
+            lintian -i artifacts/*.changes || true
+          fi
+        continue-on-error: true
+      
+      - name: Run autopkgtest
+        run: |
+          cd artifacts
+          if ls *.dsc 1> /dev/null 2>&1; then
+            sudo autopkgtest *.dsc -- null || true
+          fi
+        continue-on-error: true
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-packages
+          path: artifacts/*
+          if-no-files-found: error
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ steps.version.outputs.tag }}
+          body: |
+            ## uWebSockets ${{ steps.version.outputs.version }}
+            
+            Debian package for uWebSockets library.
+            
+            ### Artifacts
+            - **Source package** (.dsc, .orig.tar.gz) for rebuilding
+            - **Binary package** (Architecture: all - works on all architectures)
+            
+            ### Installation
+            Download and install the package:
+            ```
+            wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/uwebsockets-dev_${{ steps.version.outputs.version }}_all.deb
+            sudo apt install ./uwebsockets-dev_${{ steps.version.outputs.version }}_all.deb
+            ```
+            
+            ### Dependencies
+            Requires:
+            - libusockets-dev (>= 0.8.8) - [Download from uSockets-deb](https://github.com/roomitz/uSockets-deb/releases/latest)
+            - libuv1-dev
+            
+            ### Rebuild from source
+            ```
+            wget https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/uwebsockets_${{ steps.version.outputs.version }}.dsc
+            dpkg-source -x uwebsockets_${{ steps.version.outputs.version }}.dsc
+            cd uwebsockets-${{ steps.version.outputs.version }}
+            dpkg-buildpackage -b -us -uc
+            ```
+          files: artifacts/*
+          draft: false
+          prerelease: false
