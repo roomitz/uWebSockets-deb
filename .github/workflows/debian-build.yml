@@ -19,14 +19,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Download and install latest libusockets-dev
-        run: |
-          wget https://github.com/roomitz/uSockets-deb/releases/latest/download/libusockets-dev_0.8.8-1_amd64.deb
-          sudo apt-get update
-          sudo apt-get install -y ./libusockets-dev_*.deb
-      
       - name: Install build dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
             build-essential \
             debhelper-compat \
@@ -36,6 +31,12 @@ jobs:
             lintian \
             autopkgtest \
             autodep8
+      
+      - name: Download and install latest libusockets-dev
+        run: |
+          cd /tmp
+          wget https://github.com/roomitz/uSockets-deb/releases/latest/download/libusockets-dev_0.8.8-1_amd64.deb
+          sudo apt-get install -y /tmp/libusockets-dev_*.deb
       
       - name: Create upstream tarball
         run: |
