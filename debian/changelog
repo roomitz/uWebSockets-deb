@@ -1,0 +1,5 @@
+uwebsockets (20.74.0-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #979861)
+
+ -- Timur Dautov <roomityt@yandex.ru>  Wed, 29 Oct 2025 18:19:18 +0300
